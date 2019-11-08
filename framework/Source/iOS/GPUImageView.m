@@ -88,13 +88,13 @@
         self.contentScaleFactor = [[UIScreen mainScreen] scale];
     }
 
-    _viewBounds = self.bounds;
+    self.viewBounds = self.bounds;
     inputRotation = kGPUImageNoRotation;
     self.opaque = YES;
     self.hidden = NO;
-    _eaglLayer = (CAEAGLLayer *)self.layer;
-    _eaglLayer.opaque = YES;
-    _eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
+    self.eaglLayer = (CAEAGLLayer *)self.layer;
+    self.eaglLayer.opaque = YES;
+    self.eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
 
     self.enabled = YES;
     
@@ -139,8 +139,8 @@
     self.viewBounds = self.bounds;
     
     // The frame buffer needs to be trashed and re-created when the view size changes.
-    if (!CGSizeEqualToSize(_viewBounds.size, boundsSizeAtFrameBufferEpoch) &&
-        !CGSizeEqualToSize(_viewBounds.size, CGSizeZero)) {
+    if (!CGSizeEqualToSize(self.viewBounds.size, boundsSizeAtFrameBufferEpoch) &&
+        !CGSizeEqualToSize(self.viewBounds.size, CGSizeZero)) {
         runSynchronouslyOnVideoProcessingQueue(^{
             [self destroyDisplayFramebuffer];
             [self createDisplayFramebuffer];
@@ -169,7 +169,7 @@
     glGenRenderbuffers(1, &displayRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, displayRenderbuffer);
 	
-    [[[GPUImageContext sharedImageProcessingContext] context] renderbufferStorage:GL_RENDERBUFFER fromDrawable:_eaglLayer];
+    [[[GPUImageContext sharedImageProcessingContext] context] renderbufferStorage:GL_RENDERBUFFER fromDrawable:self.eaglLayer];
 	
     GLint backingWidth, backingHeight;
 
@@ -190,8 +190,8 @@
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, displayRenderbuffer);
 	
     GLuint framebufferCreationStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    NSAssert(framebufferCreationStatus == GL_FRAMEBUFFER_COMPLETE, @"Failure with display framebuffer generation for display of size: %f, %f", _viewBounds.size.width, _viewBounds.size.height);
-    boundsSizeAtFrameBufferEpoch = _viewBounds.size;
+    NSAssert(framebufferCreationStatus == GL_FRAMEBUFFER_COMPLETE, @"Failure with display framebuffer generation for display of size: %f, %f", self.viewBounds.size.width, self.viewBounds.size.height);
+    boundsSizeAtFrameBufferEpoch = self.viewBounds.size;
 }
 
 - (void)destroyDisplayFramebuffer;
@@ -237,12 +237,12 @@
     runSynchronouslyOnVideoProcessingQueue(^{
         CGFloat heightScaling, widthScaling;
         
-        CGSize currentViewSize = _viewBounds.size;
+        CGSize currentViewSize = self.viewBounds.size;
         
         //    CGFloat imageAspectRatio = inputImageSize.width / inputImageSize.height;
         //    CGFloat viewAspectRatio = currentViewSize.width / currentViewSize.height;
         
-        CGRect insetRect = AVMakeRectWithAspectRatioInsideRect(inputImageSize, _viewBounds);
+        CGRect insetRect = AVMakeRectWithAspectRatioInsideRect(inputImageSize, self.viewBounds);
         
         switch(_fillMode)
         {
